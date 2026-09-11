@@ -215,6 +215,7 @@
       background: linear-gradient(135deg, #fff 40%, var(--accent-pink));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      text-align: center;
     }
 
     /* Hero Section */
@@ -307,7 +308,7 @@
       border-color: rgba(255, 255, 255, 0.2);
     }
 
-    /* Wish Carousel Display (Cards / Author Attributions Removed) */
+    /* Wish Carousel Display */
     .wish-wrapper {
       margin: 4rem 0;
     }
@@ -514,7 +515,7 @@
       </div>
     </header>
 
-    <!-- Carousel Wishes Section (Without any card author text) -->
+    <!-- Carousel Wishes Section -->
     <div class="wish-wrapper">
       <div class="wish-card">
         <div class="wish-text" id="wishDisplay">"Wishing you another year of great adventures, happiness, and incredible accomplishments!"</div>
@@ -562,23 +563,21 @@
       </div>
     </div>
 
-    <!-- Feedback & Wishes Form -->
+    <!-- Guest Wishes Form Section -->
     <div class="feedback-container" id="wishForm">
       <div class="section-title" style="margin-bottom: 2rem;">
         <h2>Leave a Birthday Message</h2>
         <p style="color: var(--text-muted);">Send your warm birthday wishes directly!</p>
       </div>
 
-      <form action="https://api.web3forms.com/submit" method="POST" onsubmit="handleFormSubmit(event)">
-        <input type="hidden" name="access_key" value="75dba014-fe5d-4403-89f7-2822c9b491b7">
-
+      <form id="telegramForm" onsubmit="handleFormSubmit(event)">
         <div class="form-group">
           <label>Your Name</label>
-          <input type="text" name="senderName" id="senderName" placeholder="Enter your name" required>
+          <input type="text" id="senderName" placeholder="Enter your name" required>
         </div>
         <div class="form-group">
           <label>Birthday Wish / Message</label>
-          <textarea name="birthdayWish" id="birthdayWish" rows="4" placeholder="Write your heartfelt birthday wishes..." required></textarea>
+          <textarea id="birthdayWish" rows="4" placeholder="Write your heartfelt birthday wishes..." required></textarea>
         </div>
 
         <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%; margin-top: 0.5rem;">Send Birthday Wish 🚀</button>
@@ -597,6 +596,7 @@
         document.getElementById('introScreen').classList.add('show-text');
       }, 200);
       spawnBalloons(15);
+      initAutoRefresh();
     });
 
     function openDoors() {
@@ -631,7 +631,6 @@
       balloon.addEventListener('click', (e) => {
         createPopEffect(e.clientX, e.clientY, randomColor);
         balloon.remove();
-        // Respawn a new balloon
         setTimeout(() => createSingleBalloon(container, colors), 2000);
       });
 
@@ -752,7 +751,7 @@
       }
     }
 
-    // Birthday Wishes List (No Author Card Text)
+    // Birthday Wishes List
     const wishes = [
       "Wishing you another year of great adventures, happiness, and incredible accomplishments!",
       "May your birthday be filled with endless warmth, laughter, and beautiful memories with loved ones.",
@@ -792,29 +791,40 @@
       document.getElementById('wishForm').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Form Handling with Web3Forms
+    // Telegram Bot Integration
+    const TELEGRAM_BOT_TOKEN = '8927119758:AAFrRLJeoLpdCAmBR-8n0UBQaentWF2rvsA';
+    const TELEGRAM_CHAT_ID = '8108271298';
+
     async function handleFormSubmit(event) {
       event.preventDefault();
-      const form = event.target;
       const btn = document.getElementById('submitBtn');
-      const name = document.getElementById('senderName').value;
+      const senderName = document.getElementById('senderName').value;
+      const birthdayWish = document.getElementById('birthdayWish').value;
 
       btn.innerText = "Sending Wish...";
       btn.disabled = true;
 
+      const message = `🎉 *New Birthday Wish Received!*\n\n👤 *From:* ${senderName}\n💬 *Wish:* ${birthdayWish}`;
+      const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
       try {
-        const response = await fetch(form.action, {
+        const response = await fetch(url, {
           method: 'POST',
-          body: new FormData(form),
-          headers: { 'Accept': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: message,
+            parse_mode: 'Markdown'
+          })
         });
 
-        if (response.status === 200) {
-          alert(`Thank you, ${name}! Your warm birthday wish has been sent to Biraj.`);
-          form.reset();
+        const data = await response.json();
+        if (data.ok) {
+          alert(`Thank you, ${senderName}! Your birthday wish has been sent directly!`);
+          document.getElementById('telegramForm').reset();
           triggerCelebration();
         } else {
-          alert("Oops! Something went wrong submitting your wish.");
+          alert("Failed to send message via Telegram. Please try again.");
         }
       } catch (error) {
         alert("Network error. Please check your internet connection.");
@@ -822,6 +832,29 @@
         btn.innerText = "Send Birthday Wish 🚀";
         btn.disabled = false;
       }
+    }
+
+    // Auto-Refresh Logic (Silently checks for file changes every 10 seconds)
+    function initAutoRefresh() {
+      let lastEtag = localStorage.getItem('app_last_etag');
+
+      setInterval(async () => {
+        try {
+          const response = await fetch(window.location.href, { method: 'HEAD', cache: 'no-cache' });
+          const currentEtag = response.headers.get('etag') || response.headers.get('last-modified');
+
+          if (currentEtag) {
+            if (lastEtag && lastEtag !== currentEtag) {
+              localStorage.setItem('app_last_etag', currentEtag);
+              window.location.reload();
+            } else if (!lastEtag) {
+              localStorage.setItem('app_last_etag', currentEtag);
+            }
+          }
+        } catch (err) {
+          // Silent catch to prevent console clutter during connection drops
+        }
+      }, 10000);
     }
 
     // 3D Tilt Effect on Grid Cards
