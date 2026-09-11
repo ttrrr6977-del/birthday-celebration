@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday Celebration 🎉</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #090614;
+      --accent-gold: #fbbf24;
+      --accent-pink: #ec4899;
+      --accent-purple: #8b5cf6;
+      --accent-glow: rgba(236, 72, 153, 0.35);
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-card: rgba(20, 15, 38, 0.6);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Background Mesh */
+    .ambient-bg {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.25) 0%, transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.25) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(9, 6, 20, 0.85) 0%, transparent 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Floating Balloons Container */
+    #balloonContainer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .balloon {
+      position: absolute;
+      bottom: -120px;
+      width: 50px;
+      height: 65px;
+      border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+      pointer-events: auto;
+      cursor: pointer;
+      animation: floatUp 8s linear infinite;
+      box-shadow: inset -8px -8px 15px rgba(0,0,0,0.25), inset 8px 8px 15px rgba(255,255,255,0.3);
+      transition: transform 0.1s ease;
+    }
+
+    .balloon::before {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 10px solid inherit;
+      color: inherit;
+    }
+
+    .balloon::after {
+      content: '';
+      position: absolute;
+      bottom: -35px;
+      left: 50%;
+      width: 2px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      50% { transform: translateY(-50vh) rotate(8deg); }
+      100% { transform: translateY(-110vh) rotate(-8deg); opacity: 0.9; }
+    }
+
+    /* Grand Door Intro Screen */
+    #introScreen {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #020408;
+      overflow: hidden;
+      transition: opacity 0.8s ease 0.2s, visibility 0.8s ease 0.2s;
+    }
+
+    .door {
+      position: absolute;
+      top: 0; width: 50vw; height: 100vh;
+      background: linear-gradient(135deg, #180d28 0%, #080312 100%);
+      border-right: 2px solid rgba(236, 72, 153, 0.3);
+      transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+      z-index: 2;
+    }
+
+    .door.left { left: 0; transform-origin: left; }
+    .door.right { right: 0; border-right: none; border-left: 2px solid rgba(236, 72, 153, 0.3); transform-origin: right; }
+
+    #introScreen.open .door.left { transform: perspective(1200px) rotateY(-110deg); }
+    #introScreen.open .door.right { transform: perspective(1200px) rotateY(110deg); }
+    #introScreen.open { opacity: 0; visibility: hidden; }
+
+    .intro-content {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 2rem;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+    }
+
+    #introScreen.show-text .intro-content {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .intro-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2.5rem, 6vw, 5.5rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 20%, var(--accent-pink) 70%, var(--accent-gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 10px 40px rgba(236, 72, 153, 0.3);
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .intro-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+
+    .btn-enter {
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      color: #ffffff;
+      border: none;
+      padding: 16px 40px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 10px 30px var(--accent-glow);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-enter:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(236, 72, 153, 0.6);
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Top Navigation */
+    nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 40%, var(--accent-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Hero Section */
+    header.hero {
+      text-align: center;
+      padding: 5rem 1rem 3rem;
+    }
+
+    .tagline-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(236, 72, 153, 0.1);
+      border: 1px solid rgba(236, 72, 153, 0.3);
+      color: var(--accent-pink);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 8px 20px;
+      border-radius: 30px;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 4.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, var(--accent-pink) 0%, var(--accent-gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      color: #fff;
+      border: none;
+      padding: 16px 36px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 10px 30px var(--accent-glow);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(236, 72, 153, 0.5);
+    }
+
+    .btn-secondary {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 16px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Wish Carousel Display (Cards / Author Attributions Removed) */
+    .wish-wrapper {
+      margin: 4rem 0;
+    }
+
+    .wish-card {
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 3.5rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .wish-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+      color: #f1f5f9;
+      min-height: 80px;
+    }
+
+    .wish-nav {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .icon-btn:hover {
+      background: var(--accent-pink);
+      color: #fff;
+      border-color: var(--accent-pink);
+    }
+
+    /* Birthday Feature Grid with 3D Tilt */
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-title h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-bottom: 5rem;
+    }
+
+    .tilt-card {
+      background: linear-gradient(145deg, rgba(28, 18, 48, 0.75) 0%, rgba(12, 8, 24, 0.85) 100%);
+      border: 1px solid var(--glass-border);
+      border-top: 2px solid rgba(236, 72, 153, 0.5);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .tilt-card:hover {
+      border-color: rgba(236, 72, 153, 0.6);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(236, 72, 153, 0.2);
+    }
+
+    .card-icon-wrapper {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.1));
+      border: 1px solid rgba(236, 72, 153, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tilt-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      margin-bottom: 0.85rem;
+      color: #ffffff;
+    }
+
+    .tilt-card p {
+      color: var(--text-muted);
+      line-height: 1.7;
+      font-size: 0.98rem;
+    }
+
+    /* Guest Wishes Form Section */
+    .feedback-container {
+      background: rgba(18, 12, 32, 0.8);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      padding: 3rem;
+      margin: 0 auto 5rem;
+      max-width: 600px;
+      backdrop-filter: blur(20px);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.3s ease;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--accent-pink);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    footer {
+      border-top: 1px solid var(--glass-border);
+      padding: 2.5rem 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 3rem; }
+      .feedback-container { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Intro Screen -->
+  <div id="introScreen">
+    <div class="door left"></div>
+    <div class="door right"></div>
+    <div class="intro-content">
+      <div class="intro-subtitle">✦ Unwrapping Something Special ✦</div>
+      <h1 class="intro-title">Happy Birthday!</h1>
+      <button id="enterBtn" class="btn-enter" onclick="openDoors()">Click this for celebration 🎁</button>
+    </div>
+  </div>
+
+  <div class="ambient-bg"></div>
+  <div id="balloonContainer"></div>
+  <canvas id="confettiCanvas"></canvas>
+
+  <div class="container">
+    <nav>
+      <div class="logo">Happy Birthday <br>Kalyan Mama✨</div>
+    </nav>
+
+    <header class="hero">
+      <div class="tagline-pill">✦ Time to Celebrate</div>
+      <h1>Wishing You a <span>Wonderful Birthday!</span></h1>
+      <p class="subtitle">May your day be filled with endless laughter, joy, unforgettable moments, and all the happiness you deserve.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="triggerCelebration()">Click button to Celebrate 🎉</button>
+        <button class="btn-secondary" onclick="scrollToWishForm()">Send Your Wish 💌</button>
+      </div>
+    </header>
+
+    <!-- Carousel Wishes Section (Without any card author text) -->
+    <div class="wish-wrapper">
+      <div class="wish-card">
+        <div class="wish-text" id="wishDisplay">"Wishing you another year of great adventures, happiness, and incredible accomplishments!"</div>
+        <div class="wish-nav">
+          <button class="icon-btn" onclick="prevWish()" title="Previous Wish">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          <button class="icon-btn" onclick="speakCurrentWish()" title="Listen Wish">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+            </svg>
+          </button>
+          <button class="icon-btn" onclick="nextWish()" title="Next Wish">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Grid -->
+    <div class="section-title">
+      <h2>Birthday Highlights</h2>
+      <p style="color: var(--text-muted);">Making every moment count</p>
+    </div>
+
+    <div class="cards-grid">
+      <div class="tilt-card" onclick="triggerCelebration()">
+        <div class="card-icon-wrapper">🎂</div>
+        <h3>Celebrate Joy</h3>
+        <p>Pop floating balloons or click here anytime to trigger surprise confetti bursts!</p>
+      </div>
+      <div class="tilt-card">
+        <div class="card-icon-wrapper">🎁</div>
+        <h3>Unwrap Dreams</h3>
+        <p>May all your dreams, aspirations, and upcoming goals unfold beautifully this year.</p>
+      </div>
+      <div class="tilt-card">
+        <div class="card-icon-wrapper">🌟</div>
+        <h3>Shine Bright</h3>
+        <p>Here’s to another magnificent trip around the sun filled with success and happiness!</p>
+      </div>
+    </div>
+
+    <!-- Feedback & Wishes Form -->
+    <div class="feedback-container" id="wishForm">
+      <div class="section-title" style="margin-bottom: 2rem;">
+        <h2>Leave a Birthday Message</h2>
+        <p style="color: var(--text-muted);">Send your warm birthday wishes directly!</p>
+      </div>
+
+      <form action="https://api.web3forms.com/submit" method="POST" onsubmit="handleFormSubmit(event)">
+        <input type="hidden" name="access_key" value="75dba014-fe5d-4403-89f7-2822c9b491b7">
+
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" name="senderName" id="senderName" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group">
+          <label>Birthday Wish / Message</label>
+          <textarea name="birthdayWish" id="birthdayWish" rows="4" placeholder="Write your heartfelt birthday wishes..." required></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%; margin-top: 0.5rem;">Send Birthday Wish 🚀</button>
+      </form>
+    </div>
+
+    <footer>
+      <p>Created by Biraj Biswas | Made in Assam, India❤</p>
+    </footer>
+  </div>
+
+  <script>
+    // Intro Door Triggering
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        document.getElementById('introScreen').classList.add('show-text');
+      }, 200);
+      spawnBalloons(15);
+    });
+
+    function openDoors() {
+      const intro = document.getElementById('introScreen');
+      intro.classList.add('open');
+      triggerCelebration();
+    }
+
+    // Balloon Creation System
+    function spawnBalloons(count) {
+      const container = document.getElementById('balloonContainer');
+      const colors = ['#ec4899', '#8b5cf6', '#fbbf24', '#3b82f6', '#10b981', '#f43f5e'];
+
+      for (let i = 0; i < count; i++) {
+        createSingleBalloon(container, colors);
+      }
+    }
+
+    function createSingleBalloon(container, colors) {
+      const balloon = document.createElement('div');
+      balloon.className = 'balloon';
+      
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      balloon.style.backgroundColor = randomColor;
+      balloon.style.color = randomColor;
+      
+      balloon.style.left = Math.random() * 90 + 5 + 'vw';
+      balloon.style.animationDuration = (Math.random() * 5 + 6) + 's';
+      balloon.style.animationDelay = (Math.random() * 5) + 's';
+
+      // Balloon pop effect on click
+      balloon.addEventListener('click', (e) => {
+        createPopEffect(e.clientX, e.clientY, randomColor);
+        balloon.remove();
+        // Respawn a new balloon
+        setTimeout(() => createSingleBalloon(container, colors), 2000);
+      });
+
+      container.appendChild(balloon);
+    }
+
+    function createPopEffect(x, y, color) {
+      for (let i = 0; i < 20; i++) {
+        particles.push(new PopParticle(x, y, color));
+      }
+    }
+
+    // Confetti & Balloon Burst Particle System
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor(x, y, isBurst = false) {
+        this.x = x || Math.random() * canvas.width;
+        this.y = y || (isBurst ? y : -20);
+        this.size = Math.random() * 7 + 3;
+        this.colors = ['#ec4899', '#8b5cf6', '#fbbf24', '#38bdf8', '#34d399'];
+        this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+        this.speedY = isBurst ? (Math.random() - 0.5) * 14 : Math.random() * 2 + 1;
+        this.speedX = isBurst ? (Math.random() - 0.5) * 14 : Math.random() * 1.5 - 0.75;
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = Math.random() * 4 - 2;
+        this.opacity = 1;
+        this.isBurst = isBurst;
+      }
+
+      update() {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        this.rotation += this.rotationSpeed;
+
+        if (this.isBurst) {
+          this.speedY += 0.15;
+          this.opacity -= 0.012;
+        } else if (this.y > canvas.height) {
+          this.y = -10;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+
+      draw() {
+        if (this.opacity <= 0) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.rotation * Math.PI) / 180);
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size * 1.4);
+        ctx.restore();
+      }
+    }
+
+    class PopParticle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 4 + 2;
+        this.color = color;
+        this.speedY = (Math.random() - 0.5) * 10;
+        this.speedX = (Math.random() - 0.5) * 10;
+        this.opacity = 1;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.opacity -= 0.02;
+      }
+
+      draw() {
+        if (this.opacity <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Ambient floating confetti
+    for (let i = 0; i < 35; i++) {
+      particles.push(new Particle());
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, index) => {
+        p.update();
+        p.draw();
+        if ((p.isBurst || p instanceof PopParticle) && p.opacity <= 0) {
+          particles.splice(index, 1);
+        }
+      });
+      requestAnimationFrame(animateConfetti);
+    }
+    animateConfetti();
+
+    function triggerCelebration() {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      for (let i = 0; i < 120; i++) {
+        particles.push(new Particle(centerX, centerY, true));
+      }
+    }
+
+    // Birthday Wishes List (No Author Card Text)
+    const wishes = [
+      "Wishing you another year of great adventures, happiness, and incredible accomplishments!",
+      "May your birthday be filled with endless warmth, laughter, and beautiful memories with loved ones.",
+      "Cheers to another trip around the sun! May this year bring you closer to all your big dreams.",
+      "Sending you the happiest of birthday vibes, joy, health, and prosperity in everything you do!"
+    ];
+    let wishIdx = 0;
+
+    function renderWish() {
+      const display = document.getElementById('wishDisplay');
+      display.style.opacity = '0';
+      
+      setTimeout(() => {
+        display.innerText = `"${wishes[wishIdx]}"`;
+        display.style.opacity = '1';
+        display.style.transition = 'opacity 0.3s ease';
+      }, 300);
+    }
+
+    function nextWish() {
+      wishIdx = (wishIdx + 1) % wishes.length;
+      renderWish();
+    }
+
+    function prevWish() {
+      wishIdx = (wishIdx - 1 + wishes.length) % wishes.length;
+      renderWish();
+    }
+
+    function speakCurrentWish() {
+      const utterance = new SpeechSynthesisUtterance(wishes[wishIdx]);
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function scrollToWishForm() {
+      document.getElementById('wishForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Form Handling with Web3Forms
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+      const form = event.target;
+      const btn = document.getElementById('submitBtn');
+      const name = document.getElementById('senderName').value;
+
+      btn.innerText = "Sending Wish...";
+      btn.disabled = true;
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.status === 200) {
+          alert(`Thank you, ${name}! Your warm birthday wish has been sent to Biraj.`);
+          form.reset();
+          triggerCelebration();
+        } else {
+          alert("Oops! Something went wrong submitting your wish.");
+        }
+      } catch (error) {
+        alert("Network error. Please check your internet connection.");
+      } finally {
+        btn.innerText = "Send Birthday Wish 🚀";
+        btn.disabled = false;
+      }
+    }
+
+    // 3D Tilt Effect on Grid Cards
+    document.querySelectorAll('.tilt-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        card.style.transform = `rotateX(${-y / 15}deg) rotateY(${x / 15}deg)`;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      });
+    });
+  </script>
+</body>
+</html>
